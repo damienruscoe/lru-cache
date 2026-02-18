@@ -152,6 +152,8 @@ if (auto product = product_cache.get(12)) {
 The implementation of `ValueCache::insert_item` may evict an item from the cache, which will deallocate a list node. The following insertion
 will then allocate a new list node. In this case we can reuse the already existing node preventing a pair of allocation/deallocation.
 
+Current threaded tests are only providing minimal test coverage. These could be expanded much further to provide a more comprehensive test suite.
+
 In `SharedCache`, we could eliminate the `std::optional` wrapper for a small performance gain, but it would require invasive implementation
 between the two current implementations. The current design favors clear sepereration over small performance improvements.
 

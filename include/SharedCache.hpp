@@ -38,11 +38,11 @@ public:
 
   /**
    * @brief Retrieve a value from the cache if it exists. A null
-	 * `std::shared_ptr` otherwise.
+   * `std::shared_ptr` otherwise.
    *
    * @param key The key to look up
    * @return `std::shared_ptr<T>` A shared pointer of the cached value
-	 * if found. The pointer will be `nullptr` otherwise.
+   * if found. The pointer will be `nullptr` otherwise.
    */
   ptr_t put(const key_t &key, value_t item) {
     auto shared = std::make_shared<const value_t>(std::move(item));
@@ -52,7 +52,7 @@ public:
 
   /**
    * @brief Insert or update a value in the cache. Stores a shared copy
-	 * of the value and evicts the least-recently-used item if full.
+   * of the value and evicts the least-recently-used item if full.
    *
    * @param key The key for the value. For later retrieval.
    * @param item The value to cache

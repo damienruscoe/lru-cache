@@ -77,9 +77,8 @@ private:
   using key_lookup_t = std::unordered_map<key_t, cached_item_p>;
 
   inline void evict() {
-    const key_t &key_to_remove = m_cached_items.back().first;
+    m_key_map.erase(m_cached_items.back().first);
     m_cached_items.pop_back();
-    m_key_map.erase(key_to_remove);
   }
 
   inline void promote_to_MRU(cached_item_p it) {

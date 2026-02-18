@@ -1,8 +1,7 @@
 #include <exception>
+#include <gtest/gtest.h>
 #include <iostream>
 #include <string>
-
-#include "gtest/gtest.h"
 
 #include "SharedCache.hpp"
 #include "ValueCache.hpp"

@@ -15,11 +15,25 @@ format:
 	-echo "Formatting code in place"
 	clang-format -i src/*.cpp src/*.hpp tests/*.cpp include/*.hpp
 
+test_all: test_basic test_asan test_tsan
+
 test:
 	-echo "Building tests"
 	g++ -std=c++20 tests/cache_tests.cpp -Iinclude -o run_tests -lgtest -lgtest_main -lpthread 
 	-echo "Running tests"
 	./run_tests
+
+test_tsan:
+	-echo "Building threaded tests"
+	g++ -std=c++20 -fsanitize=thread tests/cache_thread_tests.cpp -Iinclude -o run_thread_tests -lgtest -lgtest_main -lpthread 
+	-echo "Running thread tests"
+	./run_thread_tests
+
+test_asan:
+	-echo "Building threaded tests"
+	g++ -std=c++20 -fsanitize=address,undefined -g tests/cache_thread_tests.cpp -Iinclude -o run_thread_tests -lgtest -lgtest_main -lpthread 
+	-echo "Running thread tests"
+	./run_thread_tests
 
 clean:
 	rm -fr run_tests driver_1_single_threaded driver_2_single_threaded driver_3_multi_threaded
