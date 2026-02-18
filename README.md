@@ -9,7 +9,7 @@ A generic, thread-safe LRU cache implementation in C++20, providing two compleme
 The test suite is written in Google Test.
 
 ```bash
-make test
+make test_all
 ```
 
 ### Running the Example Driver
