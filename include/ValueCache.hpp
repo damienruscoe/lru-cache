@@ -36,6 +36,7 @@ requires(std::is_copy_constructible_v<T> &&
 public:
   using key_t = K;
   using value_t = T;
+  using ptr_t = std::optional<value_t>;
 
   /**
    * @brief Retrieve a value from the cache if it exists. `std::nullopt`
@@ -48,7 +49,7 @@ public:
    * This returns a COPY of the cached value. If T is a pointer type, the
    * pointer is copied (not the pointed-to data), defeating thread safety.
    */
-  std::optional<value_t> get(const key_t &key) {
+  ptr_t get(const key_t &key) {
     std::unique_lock<std::shared_mutex> lock(m_mutex);
 
     const auto &found = m_key_map.find(key);
@@ -76,11 +77,6 @@ private:
   using cached_item_p = cached_items_t::iterator;
   using key_lookup_t = std::unordered_map<key_t, cached_item_p>;
 
-  inline void evict() {
-    m_key_map.erase(m_cached_items.back().first);
-    m_cached_items.pop_back();
-  }
-
   inline void promote_to_MRU(cached_item_p it) {
     m_cached_items.splice(m_cached_items.begin(), m_cached_items, it);
   }
@@ -98,11 +94,19 @@ private:
    * and then insert item into the MRU position
    */
   void insert_item(const key_t &key, value_t &&item) {
-    if (m_cached_items.size() >= size)
-      evict();
+    if (m_cached_items.size() < size) {
+      m_cached_items.emplace_front(key, std::move(item));
+      m_key_map.emplace(key, m_cached_items.begin());
+    } else {
+      const auto lru_item = --m_cached_items.end();
 
-    m_cached_items.emplace_front(key, std::move(item));
-    m_key_map.emplace(key, m_cached_items.begin());
+      auto extracted = m_key_map.extract(lru_item->first);
+      extracted.key() = key;
+      m_key_map.insert(std::move(extracted));
+
+      lru_item->first = key;
+      set_item(lru_item, std::move(item));
+    }
   }
 
   /**
