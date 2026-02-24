@@ -14,19 +14,19 @@ void expectCacheNoKey(cache_t &cache, const typename cache_t::key_t &key) {
 
 template <typename cache_t>
 void expectCacheKeyValue(cache_t &cache, const typename cache_t::key_t &key,
-                         const typename cache_t::value_t &value) {
+                         const typename cache_t::value_t &expected) {
   auto cached = cache.get(key);
   ASSERT_TRUE(cached);
-  EXPECT_EQ(*cached, value);
+  EXPECT_EQ(*cached, expected);
 }
 
 template <typename cache_t, typename Value>
 void expectCacheKeyValue_DoubleDeref(cache_t &cache,
                                      const typename cache_t::key_t &key,
-                                     const Value &value) {
+                                     const Value &expected) {
   auto cached = cache.get(key);
   ASSERT_TRUE(cached);
-  EXPECT_EQ(**cached, value);
+  EXPECT_EQ(**cached, expected);
 }
 
 template <typename T> class TestCache : public ::testing::Test {
