@@ -53,8 +53,7 @@ public:
     std::unique_lock<std::shared_mutex> lock(m_mutex);
 
     const auto &found = m_key_map.find(key);
-    return found == m_key_map.end() ? std::nullopt
-                                    : retrieve_item(found->second);
+    return found == m_key_map_end ? std::nullopt : retrieve_item(found->second);
   }
 
   /**
@@ -68,8 +67,8 @@ public:
     std::unique_lock<std::shared_mutex> lock(m_mutex);
 
     const auto &found = m_key_map.find(key);
-    found == m_key_map.end() ? insert_item(key, std::move(item))
-                             : set_item(found->second, std::move(item));
+    found == m_key_map_end ? insert_item(key, std::move(item))
+                           : set_item(found->second, std::move(item));
   }
 
 private:
@@ -107,6 +106,7 @@ private:
       lru_item->first = key;
       set_item(lru_item, std::move(item));
     }
+    m_key_map_end = m_key_map.end();
   }
 
   /**
@@ -118,6 +118,7 @@ private:
   }
 
   key_lookup_t m_key_map;
+  key_lookup_t::iterator m_key_map_end{m_key_map.end()};
   cached_items_t m_cached_items;
   std::shared_mutex m_mutex;
 };
