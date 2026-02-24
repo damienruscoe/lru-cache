@@ -7,8 +7,7 @@
 #include "SharedCache.hpp"
 #include "dummy_product_db.hpp"
 
-void run_thread(CachedDatabaseExample &cached_db,
-                const std::vector<uint64_t> &potential_ids) {
+void run_thread(CachedDatabaseExample &cached_db, auto &potential_ids) {
   std::cout << "Thread ID: " << std::this_thread::get_id() << " started" << nl;
 
   for (size_t i = 0; i < 20; ++i) {
