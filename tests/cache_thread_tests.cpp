@@ -14,12 +14,12 @@ protected:
 };
 
 using ThreadSafetyCacheTypes =
-    ::testing::Types<ValueCache<int, int, 100>, SharedCache<int, int, 100>>;
+    ::testing::Types<ValueCache<int, int>, SharedCache<int, int>>;
 
 TYPED_TEST_SUITE(ThreadSafetyCacheTest, ThreadSafetyCacheTypes);
 
 TYPED_TEST(ThreadSafetyCacheTest, ConcurrentReaders) {
-  TypeParam cache;
+  TypeParam cache(100);
 
   const int THREAD_COUNT = 10;
   const int ITEMS_IN_CACHE = 50;
@@ -50,7 +50,7 @@ TYPED_TEST(ThreadSafetyCacheTest, ConcurrentReaders) {
 }
 
 TYPED_TEST(ThreadSafetyCacheTest, ConcurrentWritersDifferentKeys) {
-  TypeParam cache;
+  TypeParam cache(100);
   std::atomic<int> writes{0};
   std::vector<std::thread> threads;
 
@@ -73,7 +73,7 @@ TYPED_TEST(ThreadSafetyCacheTest, ConcurrentWritersDifferentKeys) {
 }
 
 TYPED_TEST(ThreadSafetyCacheTest, ConcurrentWritersSameKeys) {
-  TypeParam cache;
+  TypeParam cache(100);
   std::atomic<int> writes{0};
   std::vector<std::thread> threads;
 

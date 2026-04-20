@@ -34,20 +34,20 @@ protected:
   using CacheType = T;
 };
 
-using IntCacheTypes = ::testing::Types<ValueCache<uint64_t, int, 3>,
-                                       SharedCache<uint64_t, int, 3>>;
+using IntCacheTypes =
+    ::testing::Types<ValueCache<uint64_t, int>, SharedCache<uint64_t, int>>;
 
 TYPED_TEST_SUITE(TestCache, IntCacheTypes);
 
 TYPED_TEST(TestCache, EmptyCache) {
-  TypeParam cache;
+  TypeParam cache(3);
 
   expectCacheNoKey(cache, 0);
   expectCacheNoKey(cache, 1);
 }
 
 TEST(TestCache, CacheTypes) {
-  ValueCache<int, std::string, 3> cache;
+  ValueCache<int, std::string> cache(3);
   cache.put(123, "hello");
   cache.put(456, "world");
 
@@ -56,7 +56,7 @@ TEST(TestCache, CacheTypes) {
 }
 
 TEST(TestCache, SingleItemCapacity) {
-  ValueCache<uint64_t, int, 1> cache;
+  ValueCache<uint64_t, int> cache(1);
   cache.put(0, 100);
   expectCacheKeyValue(cache, 0, 100);
 
@@ -72,7 +72,7 @@ TEST(TestCache, SingleItemCapacity) {
 }
 
 TYPED_TEST(TestCache, BasicFeatures) {
-  TypeParam cache;
+  TypeParam cache(3);
   cache.put(0, 0);
 
   expectCacheKeyValue(cache, 0, 0);
@@ -107,7 +107,7 @@ TYPED_TEST(TestCache, BasicFeatures) {
 }
 
 TYPED_TEST(TestCache, FullCacheEvictionPattern) {
-  TypeParam cache;
+  TypeParam cache(3);
 
   // Fill cache
   cache.put(0, 0);
@@ -128,7 +128,7 @@ TYPED_TEST(TestCache, FullCacheEvictionPattern) {
 }
 
 TYPED_TEST(TestCache, OverridePreviousKeyWithNewValue_OverideLRU) {
-  TypeParam cache;
+  TypeParam cache(3);
   cache.put(0, 0);
   cache.put(1, 1);
 
@@ -147,7 +147,7 @@ TYPED_TEST(TestCache, OverridePreviousKeyWithNewValue_OverideLRU) {
 }
 
 TYPED_TEST(TestCache, OverridePreviousKeyWithNewValue_OverideMRU) {
-  TypeParam cache;
+  TypeParam cache(3);
   cache.put(0, 0);
   cache.put(1, 1);
 
@@ -166,7 +166,7 @@ TYPED_TEST(TestCache, OverridePreviousKeyWithNewValue_OverideMRU) {
 }
 
 TYPED_TEST(TestCache, GettingACacheItemIncreasesItsMRU) {
-  TypeParam cache;
+  TypeParam cache(3);
   cache.put(0, 0);
   cache.put(1, 1);
   cache.put(2, 2); // LRU{0, 1, 2}
@@ -183,7 +183,7 @@ TYPED_TEST(TestCache, GettingACacheItemIncreasesItsMRU) {
 }
 
 TYPED_TEST(TestCache, GettingACacheItemIncreasesItsMRU_v2) {
-  TypeParam cache;
+  TypeParam cache(3);
   cache.put(0, 0);
   cache.put(1, 1);
   cache.put(2, 2); // LRU{0, 1, 2}
@@ -208,7 +208,7 @@ TEST(TestCache, LargeValueType) {
     bool operator==(const LargeObject &other) const { return id == other.id; }
   };
 
-  ValueCache<int, LargeObject, 3> cache;
+  ValueCache<int, LargeObject> cache(3);
   LargeObject obj{42, {}};
   cache.put(1, std::move(obj));
 
@@ -223,12 +223,12 @@ TEST(TestCache, MoveOnlyTypeValues) {
    */
 
   // Compilation error
-  // ValueCache<int, std::unique_ptr<int>, 2> cache;
+  // ValueCache<int, std::unique_ptr<int>> cache(2);
 
   /* Shared pointer of std::unique_ptrs are perfectly valid as the unique_ptr is
    * not being copied.
    */
-  SharedCache<int, std::unique_ptr<int>, 3> cache;
+  SharedCache<int, std::unique_ptr<int>> cache(3);
   cache.put(1, std::make_unique<int>(100));
 
   expectCacheKeyValue_DoubleDeref(cache, 1, 100);
@@ -248,12 +248,12 @@ TEST(TestCache, ReferenceTypeValues) {
   /* References just do not make sense as values. Explicitly constrained.
    */
 
-  // ValueCache<int, int&, 2> cache;
+  // ValueCache<int, int&> cache(2);
 
   /* Shared pointer references just do not make sense as values.
    */
 
-  // SharedCache<int, int&, 3> cache;
+  // SharedCache<int, int&> cache(3);
 }
 
 TEST(TestCache, SharedPtrSurvivesEviction) {
@@ -261,7 +261,7 @@ TEST(TestCache, SharedPtrSurvivesEviction) {
     int value;
   };
 
-  ValueCache<int, std::shared_ptr<const Data>, 2> cache;
+  ValueCache<int, std::shared_ptr<const Data>> cache(2);
 
   auto data1 = std::make_shared<Data>(Data{100});
   auto data2 = std::make_shared<Data>(Data{200});

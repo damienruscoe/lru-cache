@@ -36,5 +36,5 @@ test_asan:
 	./run_asan_tests
 
 clean:
-	rm -fr run_tests run_asan_tests run_tsan_tests driver_1_single_threaded driver_2_single_threaded driver_3_multi_threaded
+	rm -fr run_tests run_asan_tests run_tsan_tests driver_1_single_threaded driver_2_single_threaded driver_3_multi_threaded callgrind.out.*
 

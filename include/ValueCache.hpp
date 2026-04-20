@@ -30,13 +30,15 @@
  *          memory which is shared by this indirection. Prefer `SharedCache`
  *          if value types are expensive to copy.
  */
-template <typename K, typename T, uint32_t size = 64>
+template <typename K, typename T>
 requires(std::is_copy_constructible_v<T> &&
          !std::is_reference_v<T>) class ValueCache {
 public:
   using key_t = K;
   using value_t = T;
   using ptr_t = std::optional<value_t>;
+
+  ValueCache(uint32_t cache_size = 64) : m_size(cache_size) {}
 
   /**
    * @brief Retrieve a value from the cache if it exists. `std::nullopt`
@@ -93,7 +95,7 @@ private:
    * and then insert item into the MRU position
    */
   void insert_item(const key_t &key, value_t &&item) {
-    if (m_cached_items.size() < size) {
+    if (m_cached_items.size() < m_size) {
       m_cached_items.emplace_front(key, std::move(item));
       m_key_map.emplace(key, m_cached_items.begin());
     } else {
@@ -117,6 +119,7 @@ private:
     return it->second;
   }
 
+  uint32_t m_size;
   key_lookup_t m_key_map;
   key_lookup_t::iterator m_key_map_end{m_key_map.end()};
   cached_items_t m_cached_items;

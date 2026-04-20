@@ -27,7 +27,7 @@
  *          and `SharedCache` will safely add the pointer semantics on your
  *          behalf.
  */
-template <typename K, typename T, uint32_t size = 64>
+template <typename K, typename T>
 requires((std::is_copy_constructible_v<T> ||
           std::is_move_constructible_v<
               T>)&&!std::is_reference_v<T>) class SharedCache {
@@ -35,6 +35,8 @@ public:
   using key_t = K;
   using value_t = T;
   using ptr_t = std::shared_ptr<const value_t>;
+
+  SharedCache(uint32_t cache_size = 64) : m_impl(cache_size) {}
 
   /**
    * @brief Retrieve a value from the cache if it exists. A null
@@ -60,5 +62,5 @@ public:
   ptr_t get(const key_t &key) { return m_impl.get(key).value_or(nullptr); }
 
 private:
-  ValueCache<key_t, ptr_t, size> m_impl;
+  ValueCache<key_t, ptr_t> m_impl;
 };
